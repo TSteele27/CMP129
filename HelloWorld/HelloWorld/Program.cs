@@ -15,7 +15,7 @@ namespace HelloWorld
                 Console.ForegroundColor = currentColor;
                 for (int t = (i * 10)+1; t <= ((i * 10)+10); t++)
                 {
-                    Console.Wrfa.rgljkfsbnad nadl; fkjhas;ldktn wq.dncv;laksnmd f/,.masdlfjibh aw;ln iteLine(t);
+                    Console.WriteLine(t);
                 }
                 currentColor++;
             }
