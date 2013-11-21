@@ -1,103 +1,158 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-
-
-namespace HelloWorld
+using System.Threading.Tasks;
+using ConsoleApplication1;
+namespace ConsoleApplication1
 {
-   
-    public class Yoyo 
+    public interface INode
     {
-        int x = 5,
-            y = 5,
-            numTimes = 10,
-            currentNumTimes = 0;
-        protected int maxLength = 10,
-                      currentLength = 0;
-        bool isGoingDown = true;
-        ConsoleColor yoyoColor = ConsoleColor.Blue;
-        
-
-        public Yoyo(int xPos = 5, int yPos = 5, int numTimes = 1,int length =5, ConsoleColor color = ConsoleColor.Blue)
+        void Output();
+    }
+    public static class Program
+    {
+        public static void Main()
         {
-            x = xPos;
-            y = yPos;
-            this.numTimes = numTimes;
-            maxLength = length;
-            yoyoColor = color;
+            EventExample.ListenForEvent(MyEventFunction);
+            EventExample.ListenForEvent(MyEventFunction);
+            EventExample.ListenForEvent(MyEventFunction);
+            EventExample.ListenForEvent(MyOtherEventFunction);
+            EventExample.LaunchEvent();
         }
 
-        public virtual void Update()
+        static void MyEventFunction(object bob, EventArgs derp)
         {
-            if (isGoingDown)
-            {
-                currentLength++;
-                if (currentLength == maxLength)
-                {
-                    isGoingDown = false;
-                    
-                }
-            }
-            else
-            {
-                currentLength--;
-                if (currentLength == 0)
-                {
-                    currentNumTimes++;
-                    isGoingDown = true;
-                }
-            }
+            Console.WriteLine("Gas powered Stick!");
+
         }
-        public void Draw()
+        static void MyOtherEventFunction(object bob, EventArgs derp)
         {
-            Console.ForegroundColor = yoyoColor;
-            for (int i = 0; i < currentLength; i++)
-            {
-                Console.SetCursorPosition(x, y + i);
-                Console.Write("|");
-            }
-            Console.SetCursorPosition(x, y + currentLength);
-            Console.Write("0");
-            Console.SetCursorPosition(x, y + currentLength + 1);
-            Console.Write(" ");
-
-
+            Console.WriteLine("OTHER EVENT");
         }
     }
 
-    
-    class Program
+    public delegate void EventDelegate(object sender, EventArgs e);
+    public class EventExample
     {
-        static void Main(string[] args)
+        private static event EventDelegate myEvent;
+
+        public static void LaunchEvent()
+        {
+            if (myEvent != null)
+            {
+                myEvent(new Object(), EventArgs.Empty);
+            }
+        }
+        public static void ListenForEvent(EventDelegate d)
+        {
+            myEvent += d;
+        }
+
+        public static void StopListeningForEvent(EventDelegate d)
+        {
+            myEvent -= d;
+        }
+    }
+    public interface IAddable<T>
+    {
+        T add(T other);
+    }
+    public class MyClass
+    {
+        public int num;
+
+        public MyClass(int num)
+        {
+            this.num = num;
+        }
+        public T add<T>(T a, T b) where T : IAddable<T>
+        {
+            return a.add(b);
+        }
+    }
+    public class LinkedList<T> where T : INode
+    {
+
+        public void output()
+        {
+            LinkedList<T>.LinkedListNode reader = head;
+            do
+            {
+                //Console.WriteLine(reader.value);
+                reader.value.Output();
+                reader = reader.next;
+
+            } while (reader != null);
+        }
+        public class LinkedListNode
+        {
+            public LinkedListNode next;
+            public T value;
+
+            public LinkedListNode(T value)
+            {
+                this.value = value;
+            }
+
+            internal void SetNext(LinkedListNode nextNode)
+            {
+                this.next = nextNode;
+            }
+        }
+
+        public LinkedListNode head;
+
+        public LinkedList(params T[] objects)
         {
 
-            Random ran =new Random();
-            List<Yoyo> yoyos = new List<Yoyo>();
-            //TrickYoyo tyoyo = new TrickYoyo(5, 20, 5, 10, 10, ConsoleColor.Green);
-            for (int i = 0; i < 10; i++)
+            foreach (T o in objects)
             {
-                yoyos.Add(new Yoyo(5 + i, 5, ran.Next(3,15),ran.Next(3,15), (ConsoleColor)i));
+                Insert(o);
             }
+        }
 
-            //yoyos.Add(tyoyo);
 
-            while (true)
+        public void Insert(T value)
+        {
+            if (head == null)
             {
-                bool finished = true;
-                foreach (var yoyo in yoyos)
+                head = new LinkedListNode(value);
+                return;
+            }
+            LinkedListNode val = head;
+            while (val.next != null)
+            {
+                val = val.next;
+            }
+            val.SetNext(new LinkedListNode(value));
+        }
+
+        public void Remove(T value)
+        {
+            if (head.value.Equals(value))
+            {
+                //
+                head = head.next;
+                return;
+            }
+            LinkedListNode currentNode = head.next;
+            LinkedListNode prevNode = head;
+            while (currentNode != null)
+            {
+                if (currentNode.value.Equals(value))
                 {
-                    yoyo.Update();
-                    yoyo.Draw();
-
+                    //
+                    prevNode.next = currentNode.next;
+                    currentNode = null;
+                    break;
                 }
-                Thread.Sleep(100);
-                if (finished) break;
+                else
+                {
+                    //
+                    prevNode = currentNode;
+                    currentNode = currentNode.next;
+                }
             }
-            
-            Thread.Sleep(2000);
-
         }
     }
 }
